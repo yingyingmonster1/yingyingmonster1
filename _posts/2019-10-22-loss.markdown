@@ -1,0 +1,57 @@
+---
+layout: post
+title:  "损失函数"
+date:   2019-10-22 18:44:42 +0800
+categories: jekyll update
+---
+<html>
+<head>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+</html>
+
+# 1 定义
+损失函数是用来估量模型的预测值$f(x)$与真实值$y$的不一致程度，是一个非负的函数值，通常用$L(Y,f(X))$表示，损失函数越小，模型的鲁棒性越好。  
+模型的结构风险函数：$$\theta^*=\mathop{argmin}\limits_{\theta}\frac{1}{N}\sum\limits_{i=1}^{N}L(y_i,f(x_i,\theta))+\lambda \Phi(\theta)$$
+其中，前面的均值函数表示经验风险损失函数，后面的是正则化项。
+
+
+# 2 损失函数
+## 对数（交叉熵）损失函数
+刻画两个概率分布之间的距离，通过概率分布q（预测）来表达概率分布p（真实分布）的困难程度，交叉熵越小，两个概率分布越近。
+$$H(P,Q)=-\sum p(x)log(q(x))$$  
+二分类上的交叉熵：
+$$L=-\sum \limits_{i=1}^{N}[y_i log a_i + (1-y_i)log(1-a_i)]$$，也叫做逻辑斯蒂损失函数
+
+softmax使用的即为交叉熵损失函数，binary_cossentropy为二分类交叉熵损失，categorical_crossentropy为多分类交叉熵损失，当使用多分类交叉熵损失函数时，标签应该为多分类模式，即使用one-hot编码的向量
+
+## 0-1损失函数
+当预测为真时取1，其他时候取0
+
+## 绝对值损失函数
+$$L(y,f(x))=|y-f(x)|$$
+
+
+## Hinge损失
+$$L(y)=max(0,1-t*y)$$
+当$$t*y>1$$时，不做乘法。在$$t*y=1$$处，不能用梯度下降法进行优化，使用次梯度下降法。通常在**支持向量机**中使用。
+
+## 指数损失函数
+$$L(y,f(x))=e^{-yf(x)}$$
+指数损失函数经过推到以后，分类误差率和定义是一样的，在**Adaboost**中使用
+
+# 正则化
+正则化可以防止模型过拟合，确保泛化能力。
+## L1正则化
+L1正则化：$\lambda |w_i|$，即将损失函数改为$L(w)=L(w)+\lambda \sum_i^n|w_i|$。L1正则化可以使参数更稀疏，可以选择重要的参数或特征，去除噪声。
+
+## L2正则化
+在原先的损失函数后面多加一项$\frac{1}{2}\lambda w_i^2$，将损失函数表示为$L(w)=L(w)+\lambda \sum_i^n w_i^2$。  
+L2约束通常对稀疏的有尖峰的权重向量施加大的惩罚，偏好均匀的参数，因此鼓励神经单元利用上层所有输入而不是部分输入。加入L2正则项后，权重的绝对值大小倾向于整体减少，不会出线特别大的值，即偏向于学习比较小的权重，因此L2正则化还有一个名字叫“权重衰减”。
+
+## Elastic网络正则化
+L1正则化加上L2正则化：$\lambda_1 |w_i|+\frac{1}{2}\lambda_2 w_i^2$。
